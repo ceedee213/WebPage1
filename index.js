@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
-const app = express();   
+const mongoURI = process.env.MONGODB_URI;
 
 
 app.use(bodyParser.json());
@@ -56,7 +56,7 @@ app.post('/sign_up', async (req, res) => {
     }
 });
 
-// Login route
+
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
 
