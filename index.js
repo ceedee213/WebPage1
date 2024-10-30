@@ -3,13 +3,13 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
-const mongoURI = process.env.MONGODB_URI;
+const app = express();   
 
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true   
- }));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('docs'));
+
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log('Connected to MongoDB'))
