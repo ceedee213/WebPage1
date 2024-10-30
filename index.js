@@ -23,6 +23,10 @@ const accountHistorySchema = new mongoose.Schema({
 
 const AccountHistory = mongoose.model('AccountHistory', accountHistorySchema);
 
+app.get('/forgot-password.html', (req, res) => {
+    res.sendFile(__dirname + '/forgot-password.html');
+});
+
 app.get("/", (req, res) => {
     res.sendFile(__dirname + '/docs/login.html');
 });
