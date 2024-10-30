@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static('docs'));
 
 
 mongoose.connect('mongodb+srv://clarksulit0:Clarkduke123@cluster0.ppo2w.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
@@ -24,7 +24,7 @@ const AccountHistory = mongoose.model('AccountHistory', accountHistorySchema);
 
 
 app.get("/", (req, res) => {
-    res.sendFile(__dirname + '/public/login.html'); 
+    res.sendFile(__dirname + '/docs/login.html'); 
 });
 
 
