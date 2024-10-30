@@ -1,0 +1,170 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login and Registration</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        
+     
+        <div class="login_container" id="loginFormContainer">
+            <div class="login_title">
+                <span>Login</span>
+            </div>
+            <div class="login_message">
+                <p>Welcome Back! Log in to access our website.</p>
+                <p>Did you forget your password? <a href="forgot-password.html">Click here</a></p>
+            </div>
+            <form action="/login" method="POST" id="loginForm">
+                <div class="input_wrapper">
+                    <input type="text" id="user" name="username" class="input_field" required>
+                    <label for="user" class="label">Username</label>
+                    <i class="fa-regular fa-user icon"></i>
+                </div>
+                <div class="input_wrapper">
+                    <input type="password" id="pass" name="password" class="input_field" required>
+                    <label for="pass" class="label">Password</label>
+                    <i class="fa-solid fa-lock icon"></i>
+                </div>
+                <div class="remember-forgot">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember Me</label>
+                </div>
+                <div class="input_wrapper">
+                    <input type="submit" class="input-submit" value="Login">
+                </div>
+                <div class="signup">
+                    <span>Don't have an account? <a href="#" onclick="toggleForms()">Sign up</a></span>
+                </div>
+            </form>
+        </div>
+
+      
+        <div class="login_container" id="registrationFormContainer" style="display: none;">
+            <div class="login_title">
+                <span>Registration Form</span>
+            </div>
+            <form id="registrationForm">
+                <div class="input_wrapper">
+                    <input type="text" class="input_field" id="username" name="username" required>
+                    <label class="label" for="username">Username</label>
+                </div>
+                <div class="input_wrapper">
+                    <input type="email" class="input_field" id="email" name="email" required>
+                    <label class="label" for="email">Email Address</label>
+                    <span id="email-error" style="color: red;"></span>
+                </div>
+                <div class="input_wrapper">
+                    <input type="password" class="input_field" id="password" name="password" required>
+                    <label class="label" for="password">Enter password</label>
+                </div>
+                <div class="input_wrapper">
+                    <input type="password" class="input_field" id="reEnterpassword" name="reEnterpassword" required>
+                    <label class="label" for="reEnterpassword">Re-enter password</label>
+                    <span id="password-error" style="color: red;"></span>
+                </div>
+                <input type="submit" value="Register" class="input-submit"/>
+            </form>
+            <div id="error-message" style="color: red;"></div>
+            <p>Already have an account? <a href="#" onclick="toggleForms()">Login here</a></p>
+        </div>
+    </div>
+
+    <script>
+        function toggleForms() {
+            const loginForm = document.getElementById('loginFormContainer');
+            const registrationForm = document.getElementById('registrationFormContainer');
+            if (loginForm.style.display === 'none') {
+                loginForm.style.display = 'block';
+                registrationForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                registrationForm.style.display = 'block';
+            }
+        }
+
+    
+        document.getElementById('email').addEventListener('input', function() {
+            const emailError = document.getElementById('email-error');
+            const email = this.value;
+            const emailPattern = /^[a-zA-Z0-9._%+-]+@(yahoo|gmail|outlook|hotmail)\.com$/;
+
+            if (!emailPattern.test(email)) {
+                emailError.textContent = 'Please use a valid email provider (e.g., yahoo.com, gmail.com).';
+            } else {
+                emailError.textContent = '';
+            }
+        });
+
+
+        document.getElementById('reEnterpassword').addEventListener('input', function() {
+            const passwordError = document.getElementById('password-error');
+            const password = document.getElementById('password').value;
+            const reEnterPassword = this.value;
+
+            if (password !== reEnterPassword) {
+                passwordError.textContent = 'Passwords do not match.';
+            } else {
+                passwordError.textContent = '';
+            }
+        });
+
+        document.getElementById('registrationForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+
+            const emailError = document.getElementById('email-error').textContent;
+            const passwordError = document.getElementById('password-error').textContent;
+
+            if (emailError || passwordError) {
+                document.getElementById('error-message').textContent = 'Please fix the errors before submitting.';
+                return;
+            }
+
+            try {
+                const response = await fetch('/sign_up', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    document.getElementById('error-message').textContent = errorText;
+                } else {
+                    window.location.href = 'signup.html';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('error-message').textContent = 'An error occurred during registration. Please try again.';
+            }
+        });
+        window.addEventListener('load', () => {
+        const storedUsername = localStorage.getItem('username');
+        if (storedUsername) {
+            document.getElementById('user').value = storedUsername;
+            document.getElementById('remember').checked = true;
+        }
+    });
+    document.getElementById('loginForm').addEventListener('submit', function() {
+        const rememberMe = document.getElementById('remember').checked;
+        const username = document.getElementById('user').value;
+
+        if (rememberMe) {
+            localStorage.setItem('username', username);
+        } else {
+            localStorage.removeItem('username');
+        }
+    });
+    </script>
+</body>
+</html>
