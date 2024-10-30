@@ -1,16 +1,17 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+require('dotenv').config();  
 
-const app = express();
+const app = express();  
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('docs'));
 
-
-mongoose.connect('mongodb+srv://clarksulit0:Clarkduke123@cluster0.ppo2w.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0')
-    .then(() => console.log("Connected to database"))
-    .catch((error) => console.error("Error in connecting to database:", error));
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('Failed to connect to MongoDB:', err));
 
 
 const accountHistorySchema = new mongoose.Schema({
@@ -18,7 +19,6 @@ const accountHistorySchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true }
 });
-
 
 const AccountHistory = mongoose.model('AccountHistory', accountHistorySchema);
 
