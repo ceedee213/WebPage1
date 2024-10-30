@@ -3,19 +3,17 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
-const app = express();   
-
+const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static('docs'));
 
-
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect(process.env.MONGODB_URI, {
+    serverSelectionTimeoutMS: 30000, 
+})
     .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.error('Failed to connect to MongoDB:',   err));
-
-
+    .catch(err => console.error('Failed to connect to MongoDB:', err));
 
 const accountHistorySchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true },
@@ -25,11 +23,9 @@ const accountHistorySchema = new mongoose.Schema({
 
 const AccountHistory = mongoose.model('AccountHistory', accountHistorySchema);
 
-
 app.get("/", (req, res) => {
-    res.sendFile(__dirname + '/docs/login.html'); 
+    res.sendFile(__dirname + '/docs/login.html');
 });
-
 
 app.post('/sign_up', async (req, res) => {
     const { username, email, password, reEnterpassword } = req.body;
@@ -55,7 +51,6 @@ app.post('/sign_up', async (req, res) => {
         res.status(500).send('Server error');
     }
 });
-
 
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;
