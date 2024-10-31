@@ -227,4 +227,11 @@ a:hover{
     border: 2px solid var(--primary-color);
     outline: none;
 }
+.success-container {
+    display: flex;
+    flex-direction: column; /* Align items vertically */
+    justify-content: center; /* Center vertically */
+    align-items: center; /* Center horizontally */
+    height: 100vh; /* Make the container fill the screen height */
+}
     
