@@ -211,7 +211,7 @@ a:hover{
 
 .login_message {
     text-align: center;
-    font-size: 24px; 
+    font-size: 54px; 
     font-weight: bold; 
 }
 .input_field {
@@ -231,6 +231,6 @@ a:hover{
     flex-direction: column; 
     justify-content: center; 
     align-items: center;
-    height: 100vh; 
+    height: 30vh; 
 }
     
