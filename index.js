@@ -62,16 +62,17 @@ app.post('/login', async (req, res) => {
     try {
         const account = await AccountHistory.findOne({ username });
         if (!account || account.password !== password) {
-            return res.status(400).send('Invalid username or password');
-        }
 
+            return res.redirect('/notconnected.html'); 
+        }
         console.log("Login successful");
-        res.status(200).send('Login successful!');
+
+        res.redirect('/homepage.html'); 
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
     }
-});
+    });
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("Listening on port ", process.env.PORT || 3000);
