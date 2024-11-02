@@ -85,9 +85,10 @@
             const email = this.value;
             const emailPattern = /^[a-zA-Z0-9._%+-]+@(yahoo|gmail|outlook|hotmail)\.com$/;
             emailError.textContent = !emailPattern.test(email) 
-                ? 'Please use a valid email provider (e.g., yahoo.com, gmail.com).' 
+                ? 'Please use a valid email provider (e.g., yahoo.com, gmail.com).'  
                 : '';
         });
+
         document.getElementById('reEnterpassword').addEventListener('input', function () {
             const passwordError = document.getElementById('password-error');
             const password = document.getElementById('password').value;
@@ -96,11 +97,23 @@
         });
 
         document.getElementById('registrationForm').addEventListener('submit', async function (event) {
-            event.preventDefault();
-            const formData = new FormData(this);
-            const data = Object.fromEntries(formData.entries());
-            const emailError = document.getElementById('email-error').textContent;
-            const passwordError = document.getElementById('password-error').textContent;
+    event.preventDefault();
+    const formData = new FormData(this);   
+
+    const data = Object.fromEntries(formData.entries());
+    const   
+ emailError = document.getElementById('email-error').textContent;
+    const passwordError = document.getElementById('password-error').textContent;
+    const password = document.getElementById('password').value;
+
+            const passwordPattern = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])(?=.{5,})/;
+            if (!passwordPattern.test(password)) {
+                document.getElementById('password-error').textContent = 
+                    "Password must be at least 5 characters long, " 
+                    + "contain at least one uppercase letter, " 
+                    + "and at least one punctuation mark.";
+                return;
+            }
 
             if (emailError || passwordError) {
                 document.getElementById('error-message').textContent = 'Please fix the errors before submitting.';
@@ -139,24 +152,20 @@
             const username = document.getElementById('user').value;
             rememberMe ? localStorage.setItem('username', username) : localStorage.removeItem('username');
         });
-        
+
         function togglePassword(passwordFieldId, toggleId) {
-    const passwordField = document.getElementById(passwordFieldId);
-    const toggle = document.getElementById(toggleId);
-
-    toggle.addEventListener('click', function () {
-        const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-        passwordField.setAttribute('type', type);
-        this.classList.toggle('fa-eye');   
- 
-        this.classList.toggle('fa-eye-slash');   
- 
-    });
-}
-
-    togglePassword('pass', 'togglePasswordLogin');
-    togglePassword('password', 'togglePassword1');
-    togglePassword('reEnterpassword', 'togglePassword2');
+            const passwordField = document.getElementById(passwordFieldId);
+            const toggle = document.getElementById(toggleId);
+            toggle.addEventListener('click', function () {
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+                this.classList.toggle('fa-eye');   
+                this.classList.toggle('fa-eye-slash');   
+            });
+        }
+        togglePassword('pass', 'togglePasswordLogin');
+        togglePassword('password', 'togglePassword1');
+        togglePassword('reEnterpassword', 'togglePassword2');
     </script>
 </body>
 </html>
