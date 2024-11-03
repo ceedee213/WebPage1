@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home Page</title>
+  <title>History</title>
   <link rel="stylesheet" href="style.css"> 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
@@ -14,7 +14,7 @@
   <div class="header"> 
     <div class="site-nav">
       <div class="user">
-        <a href="user.html" style="display: flex; align-items: center;"> 
+        <a href="homepage.html" style="display: flex; align-items: center;"> 
           <img src="user.png" alt="User Image" class="user-img">
           <div>
               <h2>Testing</h2>
@@ -37,84 +37,14 @@
       </ul>
       <ul>
           <li>
-              <a href="#" id="logout" style="display: flex; align-items: center;"> 
-                  <img src="logout.png" alt="Logout Icon">
-                  <p style="margin-left: 5px;">Log out</p> 
-              </a>
+            <a href="index.html" style="display: flex; align-items: center;"> 
+                <img src="logout.png" alt="Logout Icon">
+                <p style="margin-left: 5px;">Log out</p> 
+            </a>
           </li>
       </ul>
     </div>
   </div>
 </div>
-<div class="container">
-    <h2>5-Day Forecast</h2>
-    <div class="forecast-container" id="forecast-container"></div> 
-</div>
-<script src="https://kit.fontawesome.com/a692e1c39f.js" crossorigin="anonymous"></script>
-<script>
-    let currCity = "Manila";
-    let units = "metric";
-
-    function getWeather() {
-            const API_KEY = '64f60853740a1ee3ba20d0fb595c97d5';
-
-            // Fetch current weather data
-            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${currCity}&appid=${API_KEY}&units=${units}`)
-            .then(res => res.json())
-            .then(data => {
-                weather__forecast.innerHTML = `<p>${data.weather[0].main}`
-
-                // Fetch 5-day forecast data
-                fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${currCity}&appid=${API_KEY}&units=${units}`)
-                .then(response => response.json())
-                .then(forecastData => {
-                    const forecastContainer = document.getElementById('forecast-container');
-                    forecastContainer.innerHTML = ''; // Clear previous forecast
-
-                    const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-                    const forecastByDay = {}; 
-
-                    // Group forecasts by day
-                    forecastData.list.forEach(forecast => {
-                        const date = new Date(forecast.dt * 1000);
-                        const dayIndex = date.getDay(); 
-                        const dayName = daysOfWeek[dayIndex];
-
-                        if (!forecastByDay[dayName]) {
-                            forecastByDay[dayName] = [];
-                        }
-                        forecastByDay[dayName].push(forecast);
-                    });
-
-                    // Create forecast elements for each day
-                    for (const dayName in forecastByDay) {
-                        const forecasts = forecastByDay[dayName];
-                        const temperature = forecasts[0].main.temp.toFixed(); // Use temperature from first forecast of the day
-                        const iconCode = forecasts[0].weather[0].icon; 
-                        const iconUrl = `http://openweathermap.org/img/wn/${iconCode}@2x.png`;
-
-                        const forecastElement = document.createElement('div');
-                        forecastElement.classList.add('forecast-item');
-                        forecastElement.innerHTML = `
-                            <p>${dayName}</p>   
-
-                            <img src="${iconUrl}" alt="Weather icon">
-                            <p>${temperature}&#176</p>
-                        `;
-                        forecastContainer.appendChild(forecastElement);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching forecast data:', error);
-                });
-            })
-            .catch(error => {
-                console.error('Error fetching weather data:', error);   
-
-            });
-        }
-
-        // ... (Rest of your existing JavaScript code) ...
-    </script>
 </body>
 </html>
