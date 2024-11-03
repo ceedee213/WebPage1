@@ -1,7 +1,4 @@
 const express = require('express');
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
-const bcrypt = require('bcrypt');   
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser'); // Require body-parser
 
@@ -76,76 +73,6 @@ app.post('/login', async (req, res) => {
         console.error(error);
         res.status(500).send('Server error');
     }
-    });
-    const sendPasswordResetEmail = async (email, resetLink) => {
-        let transporter = nodemailer.createTransport({
-            // Configure your email provider (e.g., Gmail, SendGrid, Mailgun)
-            service: 'gmail', // e.g., 'gmail'
-            auth: {
-                user: 'your_email@gmail.com', // Your email address
-                pass: 'your_email_password'  // Your email password or App Password
-            }
-        });
-    
-        let info = await transporter.sendMail({
-            from: '"Your App Name" <your_email@gmail.com>',
-            to: email,
-            subject: 'Password Reset',
-            html: `Click this link to reset your password: <a href="${resetLink}">${resetLink}</a>`
-        });
-    
-        console.log('Message sent: %s', info.messageId);
-    };
-    
-    app.post('/forgot-password', async (req, res) => {
-        try {
-            const email = req.body.email;
-            const token = crypto.randomBytes(20).toString('hex');
-    
-            // Use AccountHistory model instead of db.users
-            const user = await AccountHistory.findOne({ email: email });
-            if (!user) {
-                return res.status(404).send('User not found');
-            }
-    
-            user.resetToken = token;
-            user.resetTokenExpires = Date.now() + 3600000; 
-            await user.save();
-    
-            const resetLink = `https://webpage1-c5jl.onrender.com/reset-password.html?token=${token}`; // Update with your actual domain
-            await sendPasswordResetEmail(email, resetLink);
-    
-            res.send('Password reset email sent!');
-        } catch (err) {
-            console.error('Error in forgot password:', err);
-            res.status(500).send('Error sending reset email');
-        }
-    });
-    
-    app.post('/reset-password', async (req, res) => {
-        try {
-            const token = req.body.token;
-            const newPassword = req.body.password;
-    
-            // Use AccountHistory model instead of db.users
-            const user = await AccountHistory.findOne({ resetToken: token, resetTokenExpires: { $gt: Date.now() } });
-            if (!user) {
-                return res.status(400).send('Invalid or expired token');
-            }
-    
-            const hashedPassword = bcrypt.hashSync(newPassword, 10);
-    
-            user.password = hashedPassword;
-            user.resetToken   
-     = undefined;
-            user.resetTokenExpires = undefined;
-            await user.save();
-    
-            res.send('Password reset successful!');
-        } catch (err) {
-            console.error('Error resetting password:', err);
-            res.status(500).send('Error resetting password');
-        } 
     });
 
 app.listen(process.env.PORT || 3000, () => {
