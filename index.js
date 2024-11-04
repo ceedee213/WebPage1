@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser'); // Require body-parser
+const bodyParser = require('body-parser');
+const session = require('express-session');
 
 require('dotenv').config();
 
@@ -21,8 +22,16 @@ const accountHistorySchema = new mongoose.Schema({
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true }
 });
-
 const AccountHistory = mongoose.model('AccountHistory', accountHistorySchema);
+
+app.use(session({
+    secret: 'your_secret_key', 
+    resave: false,
+    saveUninitialized: true
+}));
+
+app.set('view engine', 'ejs');
+
 
 app.get('/forgot-password.html', (req, res) => {
     res.sendFile(__dirname + '/forgot-password.html');
@@ -63,17 +72,26 @@ app.post('/login', async (req, res) => {
     try {
         const account = await AccountHistory.findOne({ username });
         if (!account || account.password !== password) {
-
             return res.redirect('/notconnected.html'); 
         }
+
         console.log("Login successful");
+
+        req.session.user = {
+            username: account.username,
+            email: account.email
+        };
 
         res.redirect('/homepage.html'); 
     } catch (error) {
         console.error(error);
         res.status(500).send('Server error');
     }
-    });
+});
+app.get('/homepage.html', (req, res) => {
+    const user = req.session.user; 
+    res.render('homepage', { user }); 
+});
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("Listening on port ", process.env.PORT || 3000);

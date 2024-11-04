@@ -35,9 +35,24 @@
     min-height: 100vh;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     background-color: rgba(135, 206, 235, 0.820);
   }
-  
+  .buttons { 
+    display: flex;          
+    flex-direction: column;  
+    align-items: center;
+
+     
+  }
+  .buttons button {
+    margin-bottom: 10px; 
+    background-color: rgba(135, 206, 235, 0.820);
+    color: black; 
+    padding: 15px 30px;  /* Increase padding to make buttons bigger */
+    font-size: 18px; 
+               
+  }
   .login_container {
     position: relative;
     width: 450px;
@@ -367,8 +382,7 @@
 }
 .weather__header {
   display: flex;
-  justify-content:   
-space-between;
+  justify-content: space-between;
   align-items: center;
 }
 
