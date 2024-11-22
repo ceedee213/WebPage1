@@ -501,5 +501,115 @@ input::placeholder {
   .weather__info {
       grid-template-columns: none; }
 }
+.weather__hourly, .weather__daily {
+  margin-top: 20px;
+}
 
+.hourly__list, .daily__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
+.hourly__item, .daily__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid var(--primary-color);
+  border-radius: 5px;
+  background-color: var(--primary-color);
+}
+
+.hourly__item img, .daily__item img {
+  width: 50px;
+  height: 50px;
+}
+.weather__hourly, .weather__5day {
+    margin-top: 20px;
+    padding: 10px;
+    background-color: var(--secondary-color);
+    border-radius: 8px;
+}
+
+.hourly__list, .daily__list {
+    display: flex;
+    justify-content: space-between;
+    overflow-x: auto;
+    gap: 10px;
+}
+
+.forecast__item {
+    text-align: center;
+    width: 100px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.forecast__icon img {
+    width: 50px;
+    height: 50px;
+}
+
+.forecast__temp {
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 5px;
+}
+#error-message {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  z-index: 1000; /* Ensure it appears above other content */
+}
+
+.error-box {
+  background-color: red;
+  color: white;
+  padding: 20px;
+  border-radius: 8px;
+  font-size: 18px;
+  text-align: center;
+  max-width: 400px;
+  margin: auto;
+}
+
+button {
+  background-color: white;
+  color: red;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: red;
+  color: white;
+}
+.forecast__temp i {
+  margin-right: 5px;  
+  color: #FF6600;    
+}
+.daily__item, .hourly__item {
+  background-color: var(--secondary-color);  
+  padding: 10px;
+  border-radius: 10px;  
+  color: white;  
+  margin: 10px 0;
+}
+
+.daily__item img, .hourly__item img {
+  background-color: white;  
+  padding: 5px;
+  border-radius: 50%;
+}

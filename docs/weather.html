@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>History</title>
+  <title>Weather</title>
   <link rel="stylesheet" href="style.css"> 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
@@ -20,7 +20,7 @@
                     </div>
                 </div>
                 <ul>
-                    <li>  
+                    <li> 
                         <a href="weather.html" style="display: flex; align-items: center;"> 
                             <img src="cloudy.png" alt="Weather Icon">
                             <p style="margin-left: 5px;">Weather Navigator</p> 
@@ -55,15 +55,19 @@
                 <span class="weather_unit_farenheit">&#176F</span>
             </div>
         </div>
+        
+        <!-- City, Country, Date, and Time Info -->
+        <div class="weather__info">
+            <h3 id="city-country"></h3>
+            <p id="date-time"></p>
+        </div>
+
         <div class="weather__body">
             <h1 class="weather__city"></h1>
-            <div class="weather__datetime">
-            </div>
+            <div class="weather__datetime"></div>
             <div class="weather__forecast"></div>
-            <div class="weather__icon">
-            </div>
-            <p class="weather__temperature">
-            </p>
+            <div class="weather__icon"></div>
+            <p class="weather__temperature"></p>
             <div class="weather__minmax">
                 <p>Min: 12&#176</p>
                 <p>Max: 16&#176</p>
@@ -74,9 +78,11 @@
             <div class="weather__card">
                 <i class="fa-solid fa-temperature-full"></i>
                 <div>
-                    <p>Real Feel</p>
-                    <p class="weather__realfeel">18&#176</p>
-                </div>
+                  <p>Real Feel</p>
+                  
+                      <p class="weather__realfeel">18&#176</p>
+                  </a>
+              </div>
             </div>
             <div class="weather__card">
                 <i class="fa-solid fa-droplet"></i>
@@ -100,107 +106,223 @@
                 </div>
             </div>
         </div>
-    </div>
-    <script src="https://kit.fontawesome.com/a692e1c39f.js" crossorigin="anonymous"></script>
-    <script src="index.js"></script>
-    <script>
         
-let currCity = "Manila";
-let units = "metric";
+        <div class="weather__hourly">
+            <h2>Hourly Forecast</h2>
+            <div class="hourly__list"></div>
+        </div>
+        
+        <div class="weather__5day">
+            <h2>5-Day Forecast</h2>
+            <div class="daily__list"></div>
+        </div>
+    </div>
 
+    <div id="error-message" style="display: none;">
+        <div class="error-box">
+            <p>City not found. Please try again.</p>
+            <button onclick="hideErrorMessage()">Close</button> 
+        </div>
+    </div>
 
-let city = document.querySelector(".weather__city");
-let datetime = document.querySelector(".weather__datetime");
-let weather__forecast = document.querySelector('.weather__forecast');
-let weather__temperature = document.querySelector(".weather__temperature");
-let weather__icon = document.querySelector(".weather__icon");
-let weather__minmax = document.querySelector(".weather__minmax")
-let weather__realfeel = document.querySelector('.weather__realfeel');
-let weather__humidity = document.querySelector('.weather__humidity');
-let weather__wind = document.querySelector('.weather__wind');
-let weather__pressure = document.querySelector('.weather__pressure');
+    <script>
+       
 
+     
+      
+        let currCity = "Manila"; 
+        let units = "metric";
+        let city = document.querySelector(".weather__city");
+        let datetime = document.querySelector(".weather__datetime");
+        let weather__forecast = document.querySelector('.weather__forecast');
+        let weather__temperature = document.querySelector(".weather__temperature");
+        let weather__icon = document.querySelector(".weather__icon");
+        let weather__minmax = document.querySelector(".weather__minmax");
+        let weather__realfeel = document.querySelector('.weather__realfeel');
+        let weather__humidity = document.querySelector('.weather__humidity');
+        let weather__wind = document.querySelector('.weather__wind');
+        let weather__pressure = document.querySelector('.weather__pressure');
 
-document.querySelector(".weather__search").addEventListener('submit', e => {
-    let search = document.querySelector(".weather__searchform");
+        // Error message display
+        const errorMessage = document.getElementById("error-message");
 
-    e.preventDefault();
+        // Listen for search form submission
+        document.querySelector(".weather__search").addEventListener('submit', e => {
+            let search = document.querySelector(".weather__searchform");
+            e.preventDefault();
+            currCity = search.value; // Update current city
+            getWeather(); // Fetch the current weather for the new city
+            getHourlyForecast(); // Fetch hourly forecast for the new city
+            get5DayForecast(); // Fetch 5-day forecast for the new city
+            search.value = ""; // Clear the search input field
+        });
 
-    currCity = search.value;
+        // Unit toggle functionality
+        document.querySelector(".weather_unit_celsius").addEventListener('click', () => {
+            if(units !== "metric"){
+                units = "metric";
+                getWeather();
+                getHourlyForecast();
+                get5DayForecast();
+            }
+        });
 
-    getWeather();
+        document.querySelector(".weather_unit_farenheit").addEventListener('click', () => {
+            if(units !== "imperial"){
+                units = "imperial";  
+                getWeather();
+                getHourlyForecast();
+                get5DayForecast();
+            }
+        });
 
-    search.value = ""
-})
+        // Fetch and display current weather
+        function getWeather() {
+            const API_KEY = '64f60853740a1ee3ba20d0fb595c97d5';
 
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${currCity}&appid=${API_KEY}&units=${units}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.cod === "404") { // Check if city not found
+                    showErrorMessage();
+                    return; // Stop further execution
+                }
+                hideErrorMessage();
+                city.innerHTML = `${data.name}, ${convertCountryCode(data.sys.country)}`;
+                datetime.innerHTML = convertTimeStamp(data.dt, data.timezone);
+                weather__forecast.innerHTML = `<p>${data.weather[0].main}</p>`;
+                weather__temperature.innerHTML = `${data.main.temp.toFixed()}&#176`;
+                weather__icon.innerHTML = `<img src="http://openweathermap.org/img/wn/${data.weather[0].icon}@4x.png" />`;
+                weather__minmax.innerHTML = `<p>Min: ${data.main.temp_min.toFixed()}&#176</p><p>Max: ${data.main.temp_max.toFixed()}&#176</p>`;
+                weather__realfeel.innerHTML = `${data.main.feels_like.toFixed()}&#176`;
+                weather__humidity.innerHTML = `${data.main.humidity}%`;
+                weather__wind.innerHTML = `${data.wind.speed} ${units === "imperial" ? "mph" : "m/s"}`;
+                weather__pressure.innerHTML = `${data.main.pressure} hPa`;
+            }).catch(() => {
+                showErrorMessage();
+            });
+        }
 
-document.querySelector(".weather_unit_celsius").addEventListener('click', () => {
-    if(units !== "metric"){
+       
+        function getHourlyForecast() {
+    const API_KEY = '64f60853740a1ee3ba20d0fb595c97d5';
 
-        units = "metric"
+    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${currCity}&appid=${API_KEY}&units=${units}`)
+    .then(res => res.json())
+    .then(data => {
+        if (data.cod === "404") { // Check if city not found
+            showErrorMessage();
+            return; // Stop further execution
+        }
+        hideErrorMessage();
+        const hourlyList = data.list.slice(0, 8); // Get next 8 hours forecast
+        let hourlyHTML = hourlyList.map(item => {
+            const rainPercent = item.hasOwnProperty('rain') ? item.rain['3h'] : 0; // Get rain percentage if available
 
-        getWeather()
-    }
-})
+            // Convert Unix timestamp to Date object
+            const date = new Date(item.dt * 1000);
 
-document.querySelector(".weather_unit_farenheit").addEventListener('click', () => {
-    if(units !== "imperial"){
-  
-        units = "imperial"  
+            // Get 12-hour format time with AM/PM
+            let hours = date.getHours();
+            let minutes = date.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // The hour '0' should be '12'
+            minutes = minutes < 10 ? '0' + minutes : minutes;
 
-        getWeather()
-    }
-})
+            const timeString = `${hours}:${minutes} ${ampm}`;
 
-function convertTimeStamp(timestamp, timezone) {
-    const convertTimezone = timezone / 3600; 
-    const date = new Date(timestamp * 1000);
+            return `<div class="hourly__item">
+                        <p>${timeString}</p> <!-- 12-hour format time -->
+                        <img src="http://openweathermap.org/img/wn/${item.weather[0].icon}.png" />
+                        <p>${item.main.temp.toFixed()}&#176;C</p> <!-- Display Temperature in Celsius -->
+                        <p>Rain: ${rainPercent}%</p> <!-- Display Rain Percentage -->
+                    </div>`;
+        }).join('');
+        document.querySelector('.hourly__list').innerHTML = hourlyHTML;
+    }).catch(() => {
+        showErrorMessage();
+    });
+}
 
-    const options = {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        year: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-        timeZone: `Etc/GMT${convertTimezone >= 0 ? "-" : "+"}${Math.abs(convertTimezone)}`,
-        hour12: true,
-    }
-    return date.toLocaleString("en-PH", options) 
+function get5DayForecast() {
+    const API_KEY = '64f60853740a1ee3ba20d0fb595c97d5';
 
+    fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${currCity}&appid=${API_KEY}&units=${units}`)
+    .then(res => res.json())
+    .then(data => {
+        if (data.cod === "404") {
+            showErrorMessage();
+            return;
+        }
+        hideErrorMessage();
+        const dailyList = data.list.filter(item => item.dt_txt.includes("12:00:00")); // Get daily forecast at 12:00 PM
+        let dailyHTML = dailyList.map(item => {
+            // Check if 'rain' exists and if there is any rain in the forecast
+            const rainPercent = item.hasOwnProperty('rain') ? item.rain['3h'] : 0;
+
+            // If there's no rain data, set a default message or value
+            const rainDisplay = rainPercent > 0 ? `${rainPercent}%` : "No Rain"; // Show 'No Rain' if rain is 0
+
+            // Get the humidity for the day
+            const humidity = item.main.humidity;
+
+            return `<div class="daily__item">
+                        <p>${convertTimeStamp(item.dt, data.city.timezone, false, true)}</p>
+                        <img src="http://openweathermap.org/img/wn/${item.weather[0].icon}.png" />
+                        <p>${item.main.temp.toFixed()}&#176;C</p> <!-- Display Temperature in Celsius -->
+                        <p>Humidity: ${humidity}%</p> <!-- Display Humidity -->
+                        <p>Rain: ${rainDisplay}</p> <!-- Display Rain Percentage -->
+                    </div>`;
+        }).join('');
+        document.querySelector('.daily__list').innerHTML = dailyHTML;
+    }).catch(() => {
+        showErrorMessage();
+    });
 }
 
 
- 
 
-function convertCountryCode(country) {
-    if (country === "PH") { 
-        return "Philippines";
-    } else {
-        let regionNames = new Intl.DisplayNames(["en"], { type: "region" });
-        return regionNames.of(country)
+        // Error handling
+        function showErrorMessage() {
+            errorMessage.style.display = "block";
+        }
+
+        function hideErrorMessage() {
+            errorMessage.style.display = "none";
+        }
+
+        // Time and country conversion helpers
+        function convertTimeStamp(dt, timezone, hourly = false, dateOnly = false) {
+    // Convert the timestamp (in seconds) to milliseconds
+    let date = new Date((dt + timezone) * 1000); // timezone is in seconds
+    let hours = date.getUTCHours();  // Get hours in UTC
+    let minutes = date.getUTCMinutes();  // Get minutes in UTC
+    let day = date.toLocaleString("default", { weekday: "short" });  // Get the day of the week
+    let month = date.getMonth() + 1; // Get month (starts at 0, so add 1)
+    let dateString = `${month}/${date.getDate()}/${date.getFullYear()} ${hours}:${minutes}`;
+
+    if (hourly) {
+        return `${day} ${hours}:${minutes}`;
     }
+    if (dateOnly) {
+        return `${month}/${date.getDate()}`;
+    }
+    return dateString;
 }
 
-function getWeather(){
-    const API_KEY = '64f60853740a1ee3ba20d0fb595c97d5'
 
-fetch(`https://api.openweathermap.org/data/2.5/weather?q=${currCity}&appid=${API_KEY}&units=${units}`).then(res => res.json()).then(data => {
-    console.log(data)
-    city.innerHTML = `${data.name}, ${convertCountryCode(data.sys.country)}`
-    datetime.innerHTML = convertTimeStamp(data.dt, data.timezone); 
-    weather__forecast.innerHTML = `<p>${data.weather[0].main}`
-    weather__temperature.innerHTML = `${data.main.temp.toFixed()}&#176`
-    weather__icon.innerHTML = `   <img src="http://openweathermap.org/img/wn/${data.weather[0].icon}@4x.png" />`
-    weather__minmax.innerHTML = `<p>Min: ${data.main.temp_min.toFixed()}&#176</p><p>Max: ${data.main.temp_max.toFixed()}&#176</p>`
-    weather__realfeel.innerHTML = `${data.main.feels_like.toFixed()}&#176`
-    weather__humidity.innerHTML = `${data.main.humidity}%`
-    weather__wind.innerHTML = `${data.wind.speed} ${units === "imperial" ? "mph": "m/s"}` 
-    weather__pressure.innerHTML = `${data.main.pressure} hPa`
-})
-}
 
-document.body.addEventListener('load', getWeather())
+        function convertCountryCode(code) {
+            const countries = {
+              
+                "PH": "Philippines",
+            };
+            return countries[code] || code;
+        }
+        getWeather();
+        getHourlyForecast();
+        get5DayForecast();
     </script>
 </body>
 </html>
