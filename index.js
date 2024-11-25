@@ -39,40 +39,39 @@ app.get("/", (req, res) => {
 
 app.post('/sign_up', async (req, res) => {
     try {
-        // Log the incoming request body
+        
         console.log('Request Body:', req.body);
 
-        // Extract fields
+
         const { username, email, password, reEnterpassword } = req.body;
 
-        // Validation: Check for missing fields
+        
         if (!username || !email || !password || !reEnterpassword) {
             return res.status(400).send('All fields are required.');
         }
 
-        // Validation: Passwords must match
+       
         if (password !== reEnterpassword) {
             return res.status(400).send('Passwords do not match.');
         }
 
-        // Check for duplicate username
+       
         const existingUsername = await AccountHistory.findOne({ username });
         if (existingUsername) {
             return res.status(400).send('This username is already taken.');
         }
 
-        // Check for duplicate email
+       
         const existingEmail = await AccountHistory.findOne({ email });
         if (existingEmail) {
             return res.status(400).send('An account with this email already exists.');
         }
 
-        //Removed the password hashing to store the actual password
-        //Save the new account
+       
         const newAccount = new AccountHistory({ username, email, password });
         await newAccount.save();
 
-        // Respond with success
+     
         res.status(200).send('Registration successful!');
     } catch (error) {
         console.error('Error processing request:', error);
@@ -104,7 +103,7 @@ app.post('/login', async (req, res) => {
             return res.redirect('/notconnected.html');
         }
 
-        //Removed the bcrypt compare to match the unhashed password
+        
         if (password !== account.password) {
             return res.redirect('/notconnected.html');
         }
@@ -124,6 +123,16 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/homepage.html', (req, res) => {
+    if (req.query.refresh === 'true') {
+        res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.header('Pragma', 'no-cache'); 
+        res.header('Expires', '0'); 
+    }
+    const user = req.session.user;
+    res.render('homepage', { user });
+});
+
+app.get('/homepage.html', (req, res) => {
     const user = req.session.user;
     res.render('homepage', { user });
 });
@@ -138,12 +147,11 @@ app.post('/reset-password', async (req, res) => {
             return res.status(404).send('User not found.');
         }
 
-        //Removed the bcrypt compare to match the unhashed password
         if (oldPassword !== account.password) {
             return res.status(400).send('Old password is incorrect.');
         }
 
-        //Removed the password hashing to store the actual password
+      
         account.password = newPassword;
         await account.save();
 

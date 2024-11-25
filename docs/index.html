@@ -38,6 +38,7 @@
                     <span>Don't have an account? <a href="#" onclick="toggleForms()" style="font-weight: bold;">Sign up</a></span>
                 </div>
             </form>
+            <div id="login-error-message" style="color: red;"></div> 
         </div>
 
         <div class="login_container" id="registrationFormContainer" style="display: none;">
@@ -48,6 +49,7 @@
                 <div class="input_wrapper">
                     <input type="text" class="input_field" id="username" name="username" required>
                     <label class="label" for="username">Username</label>
+                    <span id="username-error" style="color: red;"></span> 
                 </div>
                 <div class="input_wrapper">
                     <input type="email" class="input_field" id="email" name="email" required>
@@ -125,6 +127,15 @@
 
             const emailError = document.getElementById('email-error').textContent;
             const passwordError = document.getElementById('password-error').textContent;
+            const password = document.getElementById('password').value;
+
+            const passwordPattern = /^(?=.*[A-Z]).{5,}$/; 
+            if (!passwordPattern.test(password)) {
+                document.getElementById('password-error').textContent = 
+                    "Password must be at least 5 characters long and contain at least one uppercase letter.";
+                return;
+            }
+
             if (emailError || passwordError) {
                 document.getElementById('error-message').textContent = 'Please fix the errors before submitting.';
                 return;
@@ -138,15 +149,33 @@
                 });
 
                 if (!response.ok) {
-                    const errorText = await response.text();
+                    const errorText = await response.text();   
+
                     console.error('Server Error:', errorText);
-                    document.getElementById('error-message').textContent = errorText;
+
+         
+                    if (errorText.includes('username is already taken')) {
+                        document.getElementById('username-error').textContent = 'The username is taken.';
+                    } else {
+                        document.getElementById('username-error').textContent = ''; 
+                    }
+
+                    if (errorText.includes('email already exists')) {
+                        document.getElementById('email-error').textContent = 'The email is taken.';
+                    } else {
+                        document.getElementById('email-error').textContent = ''; 
+                    }
+
+              
+                    if (document.getElementById('username-error').textContent === '' && 
+                        document.getElementById('email-error').textContent === '') {
+                        document.getElementById('error-message').textContent   
+                = errorText;
+                    }
                 } else {
-                    // Show the success message div
                     const successMessage = document.getElementById('successMessage');
                     successMessage.style.display = 'block';
 
-                    // Hide the registration form div
                     const registrationForm = document.getElementById('registrationFormContainer');
                     registrationForm.style.display = 'none';
                 }
@@ -178,11 +207,30 @@
             }
         });
 
-        document.getElementById('loginForm').addEventListener('submit', function () {
-            const rememberMe = document.getElementById('remember').checked;
-            const username = document.getElementById('user').value;
-            rememberMe ? localStorage.setItem('username', username) : localStorage.removeItem('username');
+        document.getElementById('loginForm').addEventListener('submit', async function (event) {
+    event.preventDefault(); 
+
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+        const response = await fetch('/login', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
         });
+
+        if (!response.ok) {
+            const errorText = await response.text(); 
+            document.getElementById('login-error-message').textContent = errorText; 
+        } else {
+            window.location.href = '/homepage.html?refresh=true'; 
+        }
+    } catch (error) {
+        console.error('Login Error:', error);
+        document.getElementById('login-error-message').textContent = 'An error occurred during login. Please try again.';
+    }
+});
     </script>
 </body>
 </html>
