@@ -36,7 +36,6 @@
                 </div>
                 <div class="signup">
                     <span>Don't have an account? <a href="#" onclick="toggleForms()" style="font-weight: bold;">Sign up</a></span>
-                   <!--<span>Don't have an account? <a href="#" onclick="document.getElementById('loginForm').submit();" style="font-weight: bold;">Sign up</a></span>-->
                 </div>
             </form>
         </div>
@@ -71,6 +70,16 @@
             <div id="error-message" style="color: red;"></div>
             <p>Already have an account? <a href="#" onclick="toggleForms()" class="login-link">Login here</a></p>
         </div>
+
+        <div id="successMessage" class="login_container" style="display: none;">
+            <div class="login_title">
+                <span>Registration Complete!</span>
+            </div>
+            <div class="login_message">
+                <p>Your registration was successful.</p>
+                <p>Please <a href="#" onclick="showLoginForm()" style="font-weight: bold; font-size: 18px;">log in</a> to continue.</p> 
+            </div>
+        </div>
     </div>
 
     <script>
@@ -81,12 +90,21 @@
             registrationForm.style.display = loginForm.style.display === 'none' ? 'block' : 'none'; 
         }
 
+        function showLoginForm() {
+            const loginForm = document.getElementById('loginFormContainer');
+            const registrationForm = document.getElementById('registrationFormContainer');
+            const successMessage = document.getElementById('successMessage');
+            loginForm.style.display = 'block';
+            registrationForm.style.display = 'none';
+            successMessage.style.display = 'none';
+        }
+
         document.getElementById('email').addEventListener('input', function () {
             const emailError = document.getElementById('email-error');
             const email = this.value;
             const emailPattern = /^[a-zA-Z0-9._%+-]+@(yahoo|gmail|outlook|hotmail)\.com$/;
             emailError.textContent = !emailPattern.test(email) 
-                ? 'Please use a valid email provider (e.g., yahoo.com, gmail.com).'  
+                ? 'Please use a valid email provider (e.g., yahoo.com, gmail.com).'   
                 : '';
         });
 
@@ -98,24 +116,15 @@
         });
 
         document.getElementById('registrationForm').addEventListener('submit', async function (event) {
-    event.preventDefault();
-    const formData = new FormData(this);   
+            event.preventDefault();
 
-    const data = Object.fromEntries(formData.entries());
-    const   
- emailError = document.getElementById('email-error').textContent;
-    const passwordError = document.getElementById('password-error').textContent;
-    const password = document.getElementById('password').value;
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
 
-            const passwordPattern = /^(?=.*[A-Z])(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])(?=.{5,})/;
-            if (!passwordPattern.test(password)) {
-                document.getElementById('password-error').textContent = 
-                    "Password must be at least 5 characters long, " 
-                    + "contain at least one uppercase letter, " 
-                    + "and at least one punctuation mark.";
-                return;
-            }
+            console.log('Form Data:', data);
 
+            const emailError = document.getElementById('email-error').textContent;
+            const passwordError = document.getElementById('password-error').textContent;
             if (emailError || passwordError) {
                 document.getElementById('error-message').textContent = 'Please fix the errors before submitting.';
                 return;
@@ -130,15 +139,36 @@
 
                 if (!response.ok) {
                     const errorText = await response.text();
+                    console.error('Server Error:', errorText);
                     document.getElementById('error-message').textContent = errorText;
                 } else {
-                    window.location.href = 'signup.html';
+                    // Show the success message div
+                    const successMessage = document.getElementById('successMessage');
+                    successMessage.style.display = 'block';
+
+                    // Hide the registration form div
+                    const registrationForm = document.getElementById('registrationFormContainer');
+                    registrationForm.style.display = 'none';
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Request Error:', error);
                 document.getElementById('error-message').textContent = 'An error occurred during registration. Please try again.';
             }
         });
+
+        function togglePassword(passwordFieldId, toggleId) {
+            const passwordField = document.getElementById(passwordFieldId);
+            const toggle = document.getElementById(toggleId);
+            toggle.addEventListener('click', function () {
+                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordField.setAttribute('type', type);
+                this.classList.toggle('fa-eye');   
+                this.classList.toggle('fa-eye-slash');   
+            });
+        }
+        togglePassword('pass', 'togglePasswordLogin');
+        togglePassword('password', 'togglePassword1');
+        togglePassword('reEnterpassword', 'togglePassword2');
 
         window.addEventListener('load', () => {
             const storedUsername = localStorage.getItem('username');
@@ -153,20 +183,6 @@
             const username = document.getElementById('user').value;
             rememberMe ? localStorage.setItem('username', username) : localStorage.removeItem('username');
         });
-
-        function togglePassword(passwordFieldId, toggleId) {
-            const passwordField = document.getElementById(passwordFieldId);
-            const toggle = document.getElementById(toggleId);
-            toggle.addEventListener('click', function () {
-                const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
-                passwordField.setAttribute('type', type);
-                this.classList.toggle('fa-eye');   
-                this.classList.toggle('fa-eye-slash');   
-            });
-        }
-        togglePassword('pass', 'togglePasswordLogin');
-        togglePassword('password', 'togglePassword1');
-        togglePassword('reEnterpassword', 'togglePassword2');
     </script>
 </body>
 </html>
